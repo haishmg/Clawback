@@ -45,6 +45,8 @@ Expected outcome:
 - Gateway remains reachable after the service restart.
 - Runtime version changed when an actual upgrade was expected.
 
+Post-upgrade validation includes a default 120 second gateway settle window before the command matrix starts. This avoids treating normal service restart time as channel or gateway breakage. If the gateway still cannot answer after the settle window, gateway and channel regressions remain hard failures.
+
 ## Container Rehearsal
 
 Goal: test a sanitized copy of the setup against a fresh OpenClaw package without mutating the host.

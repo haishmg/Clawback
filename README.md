@@ -90,6 +90,8 @@ Run the post-upgrade comparison:
 npm run suite:post
 ```
 
+Post-upgrade mode waits up to 120 seconds for the gateway to settle before it starts judging health, channels, and baseline drift. Use `--settle <seconds>` when running the CLI directly if a host needs a longer or shorter restart window.
+
 If the post-upgrade run reports errors, fix those before trusting the upgraded install. If it reports warnings, decide whether they match known historical state or represent new risk.
 
 Running `node bin/openclaw-upgrade-guard.js` directly only runs the local guard. It does not start Docker or Podman. Use `npm run suite:pre` when you want the local baseline and latest-version container rehearsal together. Container rehearsal uses `container-rehearsal` mode, which checks the sanitized config/state with latest OpenClaw, starts a foreground gateway inside the container, and treats failed gateway RPC/probe results as hard errors. Host-only features such as systemd service installation and absolute host workspace paths remain warnings.
