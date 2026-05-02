@@ -11,7 +11,7 @@ gateway_pid=""
 if [ "${GUARD_START_GATEWAY:-1}" = "1" ]; then
   openclaw gateway run --allow-unconfigured --bind loopback > /reports/gateway.log 2>&1 &
   gateway_pid="$!"
-  ready_timeout="${GUARD_GATEWAY_READY_TIMEOUT_SECONDS:-180}"
+  ready_timeout="${GUARD_GATEWAY_READY_TIMEOUT_SECONDS:-300}"
   ready_interval="${GUARD_GATEWAY_READY_INTERVAL_SECONDS:-2}"
   deadline=$(( $(date +%s) + ready_timeout ))
   echo "[container] waiting up to ${ready_timeout}s for gateway readiness" >&2

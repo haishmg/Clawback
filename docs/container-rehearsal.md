@@ -73,10 +73,10 @@ reports/container-rehearsal/gateway-probe-last.json
 reports/container-rehearsal/gateway-probe-last.err
 ```
 
-The default readiness timeout is 180 seconds. For slower hosts, increase it:
+The default readiness timeout is 300 seconds. For slower hosts, increase it:
 
 ```sh
-GUARD_GATEWAY_READY_TIMEOUT_SECONDS=240 npm run container:rehearse -- fixtures/openclaw-sanitized
+GUARD_GATEWAY_READY_TIMEOUT_SECONDS=420 npm run container:rehearse -- fixtures/openclaw-sanitized
 ```
 
 ## Rehearse Against a Specific Version or Tag

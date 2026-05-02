@@ -44,6 +44,8 @@ fi
 set +e
 "$runtime" "${run_args[@]}" \
   -e GUARD_MODE="${GUARD_MODE:-container-rehearsal}" \
+  -e GUARD_GATEWAY_READY_TIMEOUT_SECONDS="${GUARD_GATEWAY_READY_TIMEOUT_SECONDS:-300}" \
+  -e GUARD_GATEWAY_READY_INTERVAL_SECONDS="${GUARD_GATEWAY_READY_INTERVAL_SECONDS:-2}" \
   -v "$PWD/$fixture:/fixture:ro" \
   -v "$PWD/reports/container-rehearsal:/reports" \
   "$image"
