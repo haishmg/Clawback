@@ -2,6 +2,12 @@
 
 This document describes the scenarios OpenClaw Upgrade Guard is meant to cover before the project is opened up for wider use.
 
+## Platform Scope
+
+These scenarios are currently validated on Linux only. The local gateway and service checks assume Linux-style process/network behavior and are most complete when OpenClaw is managed by user-level `systemd`.
+
+The container rehearsal also uses a Linux container image. macOS, Windows, WSL, and non-systemd Linux should be treated as experimental until the project has explicit compatibility checks for those environments.
+
 ## Baseline Before Upgrade
 
 Goal: prove the existing install is healthy enough to compare against.

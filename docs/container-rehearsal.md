@@ -9,6 +9,9 @@ This is useful before installing a new OpenClaw version on your actual host.
 - Docker or Podman.
 - Node.js on the host to export the sanitized fixture.
 - A local OpenClaw state directory, usually `~/.openclaw`.
+- A Linux-compatible shell environment. The provided helper scripts use `bash`.
+
+The container image itself runs Linux. Running it from macOS, Windows, or WSL may work if Docker/Podman path mounts behave normally, but the workflow is currently validated only from Linux.
 
 ## Export a Sanitized Fixture
 

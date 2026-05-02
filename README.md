@@ -5,6 +5,17 @@ It captures the current setup, checks the parts most likely to break during an u
 
 The project is designed for personal setups first, but the checks are generic enough to share with other OpenClaw users.
 
+## Platform Support
+
+OpenClaw Upgrade Guard is currently Linux/POSIX-first.
+
+- The Node.js CLI is intended to be portable, but it has only been validated on Linux.
+- The helper scripts use `bash` and POSIX shell behavior.
+- The container rehearsal expects Docker or Podman on a Linux-compatible host.
+- The local baseline checks are most complete for Linux installs that use user-level `systemd` for the OpenClaw gateway.
+
+macOS, Windows, WSL, and non-systemd Linux may work for parts of the CLI, but they are not validated yet. Treat results on those platforms as experimental until platform-specific checks are added.
+
 ## What It Checks
 
 - OpenClaw CLI availability and runtime version.

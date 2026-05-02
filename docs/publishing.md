@@ -16,6 +16,7 @@ Use this checklist before making the repository public.
 - Run a real baseline against a working OpenClaw install.
 - Run a post-upgrade comparison against that baseline.
 - Confirm optional command failures are understandable warnings.
+- Clearly label the current release as Linux/POSIX-first.
 
 ## Suggested GitHub Description
 
