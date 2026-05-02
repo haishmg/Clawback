@@ -14,7 +14,7 @@ Usage:
   scripts/run-upgrade-suite.sh post
 
 Modes:
-  pre   Export a sanitized fixture, then run local baseline followed by container rehearsal.
+  pre   Export a sanitized fixture, then run local baseline and container rehearsal in parallel.
   post  Run local post-upgrade comparison using reports/before-upgrade/report.json.
 
 Environment:
@@ -35,25 +35,26 @@ case "$mode" in
     baseline_log="$before_dir/run.log"
     container_log="reports/container-rehearsal/run.log"
 
-    echo "[suite] Running local baseline"
+    echo "[suite] Starting local baseline"
     echo "[suite] Local baseline reports: $before_dir"
-    set +e
     node bin/clawback.js \
       --mode baseline \
       --out "$before_dir" \
-      > "$baseline_log" 2>&1
-    baseline_status="$?"
-    set -e
+      > "$baseline_log" 2>&1 &
+    baseline_pid="$!"
 
-    echo "[suite] Running container rehearsal"
+    echo "[suite] Starting container rehearsal"
     echo "[suite] Container target: ${OPENCLAW_PACKAGE:-openclaw@latest}"
     echo "[suite] Container output: $container_log"
-    set +e
     OPENCLAW_PACKAGE="${OPENCLAW_PACKAGE:-openclaw@latest}" \
       npm run container:rehearse -- "$fixture" \
-      > "$container_log" 2>&1
-    container_status="$?"
-    set -e
+      > "$container_log" 2>&1 &
+    container_pid="$!"
+
+    baseline_status=0
+    container_status=0
+    wait "$baseline_pid" || baseline_status="$?"
+    wait "$container_pid" || container_status="$?"
 
     if [ "$baseline_status" -ne 0 ] || [ "$container_status" -ne 0 ]; then
       echo "pre suite failed: baseline=$baseline_status container=$container_status" >&2

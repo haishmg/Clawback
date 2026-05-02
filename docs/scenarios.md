@@ -97,7 +97,7 @@ This is the preferred pre-upgrade container decision when investigating a specif
 
 ## Pre-Upgrade Suite
 
-Goal: make the normal pre-upgrade process predictable by running the local baseline first, then the container rehearsal.
+Goal: make the normal pre-upgrade process faster by running the independent checks in parallel while showing results only after both finish.
 
 Command:
 
@@ -108,8 +108,8 @@ npm run suite:pre
 Expected outcome:
 
 - A sanitized fixture is exported.
-- Local baseline runs into `reports/before-upgrade`.
-- Container rehearsal runs into `reports/container-rehearsal/run`.
+- Local baseline starts into `reports/before-upgrade`.
+- Container rehearsal starts into `reports/container-rehearsal/run`.
 - The command exits nonzero if either check fails.
 
 The post-upgrade comparison depends on the baseline and on the real upgrade being complete, so it runs separately:
