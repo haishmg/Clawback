@@ -4,8 +4,7 @@
   "description": "Container rehearsal, guarded update, and rollback safety for OpenClaw upgrades.",
   "type": "module",
   "bin": {
-    "clawback": "./bin/clawback.js",
-    "openclaw-upgrade-guard": "./bin/openclaw-upgrade-guard.js"
+    "clawback": "./bin/clawback.js"
   },
   "scripts": {
     "ci": "npm run check && npm run regression:offline",

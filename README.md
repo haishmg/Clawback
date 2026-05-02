@@ -64,7 +64,7 @@ node /path/to/clawback/bin/clawback.js --help
 For example, on this host:
 
 ```sh
-node /home/pii/openclaw-upgrade-guard/bin/clawback.js --help
+node /home/pii/Clawback/bin/clawback.js --help
 ```
 
 ## Recommended Upgrade Workflow

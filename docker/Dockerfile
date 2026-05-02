@@ -17,7 +17,7 @@ RUN npm install --omit=dev || npm install --package-lock=false --omit=dev
 COPY bin ./bin
 COPY lib ./lib
 COPY docker/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh /guard/bin/clawback.js /guard/bin/openclaw-upgrade-guard.js \
+RUN chmod +x /entrypoint.sh /guard/bin/clawback.js \
   && mkdir -p /home/openclaw/.openclaw /reports /tmp/openclaw-node-cache \
   && chown -R openclaw:openclaw /home/openclaw /reports /tmp/openclaw-node-cache /guard
 
