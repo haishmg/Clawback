@@ -172,6 +172,80 @@ test("gateway transport output on JSON commands is a hard failure", () => {
   assert.equal(checks.find((check) => check.id === "command.health.json")?.level, "error");
 });
 
+test("container scope limitations are warnings when gateway probe succeeds", () => {
+  const checks = evaluate({
+    mode: "container-rehearsal",
+    commands: {
+      version: ok("2026.4.23"),
+      status: okJson({
+        runtimeVersion: "2026.4.23",
+        gateway: { reachable: false, misconfigured: false },
+        gatewayService: { installed: false, runtime: { status: "unknown" } },
+        agents: { agents: [{ id: "main", workspaceDir: "/missing", sessionsPath: process.argv[1] }] },
+      }),
+      health: {
+        id: "health",
+        ok: true,
+        required: false,
+        args: ["health", "--json"],
+        json: null,
+        stdout: "[openclaw] Failed to start CLI: Error: gateway timeout after 10000ms",
+        stderr: "",
+        parseError: "Unexpected token 'o'",
+        durationMs: 1,
+      },
+      gateway_status: okJson({
+        rpc: { ok: false, error: "timeout" },
+        config: { cli: { valid: true }, daemon: { valid: true } },
+      }),
+      gateway_probe: okJson({ ok: true, capability: "read_only" }),
+      cron_status: {
+        id: "cron_status",
+        ok: true,
+        required: false,
+        args: ["cron", "status", "--json"],
+        json: null,
+        stdout: "scope upgrade pending approval; pairing required: device is asking for more scopes than currently approved",
+        stderr: "",
+        parseError: "Unexpected token 's'",
+        durationMs: 1,
+      },
+    },
+  });
+
+  assert.equal(checks.find((check) => check.id === "command.health.json")?.level, "warning");
+  assert.equal(checks.find((check) => check.id === "command.cron_status.json")?.level, "warning");
+  assert.equal(checks.find((check) => check.id === "gateway.status.rpc")?.level, "warning");
+});
+
+test("container channel probe failures are warnings", () => {
+  const checks = evaluate({
+    mode: "container-rehearsal",
+    commands: {
+      version: ok("2026.4.23"),
+      status: okJson({
+        runtimeVersion: "2026.4.23",
+        gateway: { reachable: false, misconfigured: false },
+        gatewayService: { installed: false, runtime: { status: "unknown" } },
+        agents: { agents: [{ id: "main", workspaceDir: "/missing", sessionsPath: process.argv[1] }] },
+      }),
+      health: okJson({
+        ok: true,
+        channels: {
+          telegram: {
+            configured: true,
+            probe: { ok: false, error: "Not Found" },
+            accounts: { default: { probe: { ok: false, error: "Not Found" } } },
+          },
+        },
+      }),
+    },
+  });
+
+  assert.equal(checks.find((check) => check.id === "channel.telegram.probe")?.level, "warning");
+  assert.equal(checks.find((check) => check.id === "channel.telegram.default.probe")?.level, "warning");
+});
+
 test("recommendation blocks upgrades on hard errors", () => {
   const recommendation = buildRecommendation({
     mode: "container-rehearsal",
