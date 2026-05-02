@@ -32,12 +32,14 @@ case "$mode" in
     npm run container:export -- ~/.openclaw "$fixture"
 
     mkdir -p "$before_dir" reports/container-rehearsal
+    baseline_log="$before_dir/run.log"
 
     echo "[suite] Starting local baseline in background"
     echo "[suite] Local baseline reports: $before_dir"
     node bin/clawback.js \
       --mode baseline \
-      --out "$before_dir" &
+      --out "$before_dir" \
+      > "$baseline_log" 2>&1 &
     baseline_pid="$!"
 
     echo "[suite] Starting container rehearsal in background"
@@ -53,11 +55,18 @@ case "$mode" in
 
     if [ "$baseline_status" -ne 0 ] || [ "$container_status" -ne 0 ]; then
       echo "pre suite failed: baseline=$baseline_status container=$container_status" >&2
+      if [ "$baseline_status" -ne 0 ]; then
+        echo "[suite] Local baseline output:" >&2
+        cat "$baseline_log" >&2
+      fi
       exit 1
     fi
     echo "[suite] Pre-upgrade suite complete"
     echo "[suite] Local HTML: $before_dir/report.html"
     echo "[suite] Container HTML: reports/container-rehearsal/run/report.html"
+    echo ""
+    echo "[suite] Local baseline output:"
+    cat "$baseline_log"
     ;;
   post)
     if [ ! -f "$baseline_file" ]; then
