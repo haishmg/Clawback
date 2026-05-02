@@ -157,6 +157,15 @@ This runs the baseline package first, saves `reports/container-baselines/2026.4.
 
 Use this when you need to answer: "does the target version preserve the behavior my current setup already has?" It avoids failing the target for container noise that also exists in the current version, while still failing new regressions such as lost gateway identity, new gateway errors, newly broken channel account state, or materially higher resource usage.
 
+When the target report passes, the rehearsal prints the guarded host update commands:
+
+```sh
+npm run upgrade:apply -- --target <version> --report <report.json>
+npm run upgrade:apply -- --target <version> --report <report.json> --yes
+```
+
+The first command is a host update dry-run. The second command applies the update and writes a rollback plan under `reports/updates/`.
+
 You can also run the two steps manually:
 
 ```sh

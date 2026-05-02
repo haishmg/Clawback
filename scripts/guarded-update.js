@@ -47,7 +47,7 @@ function applyUpdate(options, openclaw) {
 
   const dryRun = runOpenClaw(openclaw, ["update", "--tag", options.target, "--dry-run", "--json"], options.timeoutSeconds);
   fs.writeFileSync(dryRunPath, `${JSON.stringify(dryRun, null, 2)}\n`);
-  if (dryRun.exitCode !== 0) {
+  if (!commandSucceeded(dryRun)) {
     fail(`Dry-run failed. Details written to ${dryRunPath}`);
   }
 
@@ -61,7 +61,7 @@ function applyUpdate(options, openclaw) {
 
   const update = runOpenClaw(openclaw, ["update", "--tag", options.target, "--yes", "--json"], options.timeoutSeconds);
   fs.writeFileSync(updatePath, `${JSON.stringify(update, null, 2)}\n`);
-  if (update.exitCode !== 0) {
+  if (!commandSucceeded(update)) {
     fail(`Update failed. Details written to ${updatePath}. Rollback plan remains at ${rollbackPath}`);
   }
 
@@ -86,7 +86,7 @@ function rollbackUpdate(options, openclaw) {
 
   const dryRun = runOpenClaw(openclaw, ["update", "--tag", plan.previousVersion, "--dry-run", "--json"], options.timeoutSeconds);
   fs.writeFileSync(dryRunPath, `${JSON.stringify(dryRun, null, 2)}\n`);
-  if (dryRun.exitCode !== 0) {
+  if (!commandSucceeded(dryRun)) {
     fail(`Rollback dry-run failed. Details written to ${dryRunPath}`);
   }
 
@@ -100,7 +100,7 @@ function rollbackUpdate(options, openclaw) {
 
   const result = runOpenClaw(openclaw, ["update", "--tag", plan.previousVersion, "--yes", "--json"], options.timeoutSeconds);
   fs.writeFileSync(rollbackPath, `${JSON.stringify(result, null, 2)}\n`);
-  if (result.exitCode !== 0) {
+  if (!commandSucceeded(result)) {
     fail(`Rollback update failed. Details written to ${rollbackPath}`);
   }
   console.log(`[rollback] Rollback command completed. Details: ${rollbackPath}`);
@@ -142,6 +142,10 @@ function runOpenClaw(openclaw, args, timeoutSeconds = 1200) {
     timedOut: result.error?.code === "ETIMEDOUT",
     error: result.error?.message || null,
   };
+}
+
+function commandSucceeded(result) {
+  return result.exitCode === 0 && !result.signal && !result.timedOut && !result.error;
 }
 
 function parseArgs(args) {

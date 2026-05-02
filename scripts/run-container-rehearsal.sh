@@ -66,4 +66,5 @@ set -e
 
 echo "[container] Host HTML: $PWD/reports/container-rehearsal/run/report.html"
 echo "[container] Host JSON: $PWD/reports/container-rehearsal/run/report.json"
+node scripts/print-update-next-step.js "$PWD/reports/container-rehearsal/run/report.json" || true
 exit "$status"

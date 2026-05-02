@@ -112,6 +112,8 @@ OPENCLAW_BASELINE_PACKAGE=openclaw@2026.4.23 OPENCLAW_PACKAGE=openclaw@2026.4.29
 
 This first runs the baseline package against the exported fixture and saves it under `reports/container-baselines/`. It then runs the target package with `--baseline` against that control report, so warnings already present in the current version do not become false blockers, but new capability regressions do.
 
+When a container rehearsal passes, the tool prints the guarded update commands to run next. Start with the dry-run command. Add `--yes` only when you are ready for the guard to apply the host update and write a rollback plan.
+
 See [docs/container-rehearsal.md](docs/container-rehearsal.md) for details and limitations.
 
 Container images can consume multiple GB on small hosts after repeated rebuilds. See the Podman/Docker disk usage notes in [docs/container-rehearsal.md](docs/container-rehearsal.md#podman-and-docker-disk-usage).
