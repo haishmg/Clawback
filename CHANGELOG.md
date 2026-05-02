@@ -8,6 +8,20 @@ Clawback uses semantic versioning:
 - `MINOR`: new checks, workflows, or report features.
 - `PATCH`: bug fixes, docs, and regression coverage.
 
+## [0.2.0] - 2026-05-02
+
+### Added
+
+- `--debug` flag for exhaustive validation probe output.
+- README guidance explaining why local baseline and container rehearsal checks intentionally overlap.
+
+### Changed
+
+- Default CLI progress now shows important checkpoints only: phases, failed probes, warning probes, and retries.
+- Pre-upgrade suite runs the local baseline and container rehearsal in parallel, captures both logs, and prints results only after both checks finish.
+- README is shorter and focused on the main upgrade workflow.
+- Container build output no longer shows a misleading `openclaw@latest` default when a specific target package is passed.
+
 ## [0.1.0] - 2026-05-02
 
 Initial public release.

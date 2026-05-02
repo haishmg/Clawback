@@ -1,15 +1,14 @@
-# Clawback 0.1.0
-
-Initial public release.
+# Clawback 0.2.0
 
 ## Highlights
 
-- Container rehearsal and target-vs-baseline comparison for OpenClaw upgrades.
-- Guarded host update with rollback plan generation.
-- Post-upgrade validation with gateway settle wait.
-- Interactive HTML, Markdown, and JSON reports.
-- Offline regression suite and GitHub Actions CI.
+- Default validation output is quieter and focused on important checkpoints.
+- Use `--debug` to restore exhaustive per-probe progress output.
+- `npm run suite:pre` runs the local baseline and container rehearsal in parallel, but prints both captured results only after both checks finish.
+- README now explains why baseline and container checks intentionally overlap.
+- Container builds now print the actual OpenClaw package being installed instead of showing a misleading `openclaw@latest` Dockerfile default.
 
-## Important Caveat
+## Validation
 
-Sanitized container rehearsal is a compatibility gate, not a full live-host replica. Use it before upgrading, then run live post-upgrade validation after the guarded update.
+- `npm run ci`
+- `npm pack --dry-run`
