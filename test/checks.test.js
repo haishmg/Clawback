@@ -131,6 +131,7 @@ test("container rehearsal downgrades host runtime expectations", () => {
   assert.equal(checks.find((check) => check.id === "gateway.reachable")?.level, "warning");
   assert.equal(checks.find((check) => check.id === "gateway.service")?.level, "warning");
   assert.equal(checks.find((check) => check.id === "agent.main.workspace")?.level, "warning");
+  assert.equal(checks.find((check) => check.id === "container.fidelity.host_replica")?.level, "warning");
 });
 
 test("parses JSON wrapped in terminal control output", () => {

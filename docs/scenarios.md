@@ -66,6 +66,7 @@ Expected outcome:
 - A foreground gateway starts inside the container.
 - Gateway RPC/probe checks succeed against the target package.
 - Static config and agent checks pass or produce actionable warnings.
+- The report warns that the container is not a full host replica.
 
 This scenario complements local checks. It does not replace local post-upgrade validation because live channel credentials and host system services are intentionally not copied into the fixture.
 

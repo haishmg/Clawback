@@ -114,7 +114,9 @@ OPENCLAW_BASELINE_PACKAGE=openclaw@2026.4.23 OPENCLAW_PACKAGE=openclaw@2026.4.29
 
 This first runs the baseline package against the exported fixture and saves it under `reports/container-baselines/`. It then runs the target package with `--baseline` against that control report, so warnings already present in the current version do not become false blockers, but new capability regressions do.
 
-When a container rehearsal passes, the tool prints the guarded update commands to run next. Start with the dry-run command. Add `--yes` only when you are ready for the guard to apply the host update and write a rollback plan.
+Important: the sanitized container is not a full clone of the live host. It does not exercise the user systemd service, live channel auth/device stores, external workspace directories, task history, locks, logs, media, memory, or runtime caches. Treat it as a compatibility smoke test. A real upgrade decision still needs the local baseline and post-upgrade validation.
+
+When a container rehearsal passes, the tool prints the guarded update commands to run next. Start with the dry-run command. If the report is low-fidelity, the guarded updater requires `--accept-low-fidelity` before it will apply the host update.
 
 See [docs/container-rehearsal.md](docs/container-rehearsal.md) for details and limitations.
 

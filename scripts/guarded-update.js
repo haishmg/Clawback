@@ -20,7 +20,7 @@ function applyUpdate(options, openclaw) {
   if (!options.report) fail("--report <path> is required");
 
   const report = readJson(options.report);
-  validatePassingReport(report, options.target);
+  validatePassingReport(report, options.target, { acceptLowFidelity: options.acceptLowFidelity });
 
   const currentVersion = detectVersion(openclaw);
   const runDir = createRunDir();
@@ -55,7 +55,8 @@ function applyUpdate(options, openclaw) {
     console.log("");
     console.log("[upgrade] Dry-run passed. No update was applied.");
     console.log("[upgrade] Re-run with --yes to update the host:");
-    console.log(`          npm run upgrade:apply -- --target ${shellWord(options.target)} --report ${shellWord(options.report)} --yes`);
+    const fidelityFlag = reportHasLowFidelityWarning(report) ? " --accept-low-fidelity" : "";
+    console.log(`          npm run upgrade:apply -- --target ${shellWord(options.target)} --report ${shellWord(options.report)}${fidelityFlag} --yes`);
     return;
   }
 
@@ -108,16 +109,25 @@ function rollbackUpdate(options, openclaw) {
   console.log("           npm run suite:post");
 }
 
-function validatePassingReport(report, target) {
+function validatePassingReport(report, target, { acceptLowFidelity = false } = {}) {
   if (report.tool !== "openclaw-upgrade-guard") fail("Report is not an OpenClaw Upgrade Guard report");
   if (report.mode !== "container-rehearsal") fail(`Expected a container-rehearsal report, got ${report.mode}`);
   if (report.result !== "pass") fail(`Refusing update because rehearsal result is ${report.result}`);
   if ((report.summary?.errors || 0) > 0) fail("Refusing update because rehearsal report contains errors");
+  if (reportHasLowFidelityWarning(report) && !acceptLowFidelity) {
+    fail(
+      "Refusing update because the passing report is a low-fidelity sanitized container rehearsal. Re-run with --accept-low-fidelity only if you understand that this does not replicate the live host service, credentials, workspaces, and runtime state.",
+    );
+  }
 
   const reportedVersion = report.commands?.status?.json?.runtimeVersion || extractVersion(report.commands?.version?.stdout);
   if (reportedVersion && normalizeVersion(reportedVersion) !== normalizeVersion(target)) {
     fail(`Report version ${reportedVersion} does not match requested target ${target}`);
   }
+}
+
+function reportHasLowFidelityWarning(report) {
+  return (report.checks || []).some((check) => check.id === "container.fidelity.host_replica");
 }
 
 function detectVersion(openclaw) {
@@ -165,6 +175,7 @@ function parseArgs(args) {
     else if (arg === "--openclaw") options.openclaw = readValue();
     else if (arg === "--timeout") options.timeoutSeconds = Number(readValue());
     else if (arg === "--yes") options.yes = true;
+    else if (arg === "--accept-low-fidelity") options.acceptLowFidelity = true;
     else if (arg === "--help" || arg === "-h") usage(0);
     else fail(`Unknown option: ${arg}`);
   }
@@ -206,7 +217,8 @@ function usage(code) {
   npm run upgrade:rollback -- --plan <rollback.json> [--yes]
 
 The apply command refuses to update unless the target version has a passing
-container-rehearsal report. Without --yes it performs only validation and
+container-rehearsal report. Low-fidelity sanitized container reports also
+require --accept-low-fidelity. Without --yes it performs only validation and
 OpenClaw's update dry-run.`);
   process.exit(code);
 }

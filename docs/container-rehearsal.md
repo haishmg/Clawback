@@ -1,6 +1,6 @@
 # Container Upgrade Rehearsal
 
-The local guard checks your real OpenClaw install in place. The container rehearsal checks a sanitized copy of your OpenClaw state against a fresh OpenClaw package in an isolated filesystem.
+The local guard checks your real OpenClaw install in place. The container rehearsal checks a sanitized copy of your OpenClaw state against a fresh OpenClaw package in an isolated filesystem. It is a compatibility smoke test, not a full clone of the live host.
 
 This is useful before installing a new OpenClaw version on your actual host.
 
@@ -134,9 +134,14 @@ Can prove:
 
 Cannot fully prove:
 
+- The live host upgrade path, including package replacement, service file changes, and restart behavior.
 - Real Telegram/WhatsApp auth still works, because auth stores are intentionally not copied by default.
 - Host systemd service installation behavior, because the container does not run your user systemd.
+- External workspace directories, unless you mount or copy them deliberately.
+- Durable task history, locks, logs, media, memory, and runtime caches, because the default fixture omits them.
 - Hardware, Tailscale, DNS, or local network behavior.
+
+The report includes `container.fidelity.host_replica` as a warning to make this explicit. A passing sanitized container rehearsal means "the target can load this redacted fixture and pass compatibility probes." It does not mean "the target is proven safe on the live host."
 
 For real confidence, use both workflows:
 
@@ -161,10 +166,10 @@ When the target report passes, the rehearsal prints the guarded host update comm
 
 ```sh
 npm run upgrade:apply -- --target <version> --report <report.json>
-npm run upgrade:apply -- --target <version> --report <report.json> --yes
+npm run upgrade:apply -- --target <version> --report <report.json> --accept-low-fidelity --yes
 ```
 
-The first command is a host update dry-run. The second command applies the update and writes a rollback plan under `reports/updates/`.
+The first command is a host update dry-run. The second command applies the update and writes a rollback plan under `reports/updates/`. The `--accept-low-fidelity` flag is deliberately explicit because the report did not replicate live service restart behavior or private channel/device state.
 
 You can also run the two steps manually:
 
@@ -206,10 +211,10 @@ The container rehearsal is non-mutating. To let the guard moderate a real host u
 npm run upgrade:apply -- --target 2026.4.24 --report reports/container-rehearsal/run/report.json
 ```
 
-Without `--yes`, this validates the report and runs `openclaw update --tag <target> --dry-run --json` only. To apply the update:
+Without `--yes`, this validates the report and runs `openclaw update --tag <target> --dry-run --json` only. If the report is a sanitized low-fidelity container rehearsal, applying the update also requires `--accept-low-fidelity`:
 
 ```sh
-npm run upgrade:apply -- --target 2026.4.24 --report reports/container-rehearsal/run/report.json --yes
+npm run upgrade:apply -- --target 2026.4.24 --report reports/container-rehearsal/run/report.json --accept-low-fidelity --yes
 ```
 
 The updater records the currently installed version and writes a rollback plan under `reports/updates/`. If post-upgrade validation fails:
