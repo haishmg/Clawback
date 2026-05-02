@@ -62,9 +62,30 @@ test("baseline evaluator catches missing agents and channels", () => {
   assert(checks.some((check) => check.level === "error" && check.id === "baseline.channel.telegram"));
 });
 
+test("container rehearsal downgrades host runtime expectations", () => {
+  const checks = evaluate({
+    mode: "container-rehearsal",
+    commands: {
+      version: ok("2026.4.29"),
+      status: okJson({
+        runtimeVersion: "2026.4.29",
+        gateway: { reachable: false, misconfigured: false },
+        gatewayService: { installed: false, runtime: { status: "unknown" } },
+        agents: { agents: [{ id: "main", workspaceDir: "/missing", sessionsPath: process.argv[1] }] },
+      }),
+      health: okJson({ ok: true, channels: {} }),
+    },
+  });
+
+  assert.equal(checks.find((check) => check.id === "gateway.reachable")?.level, "warning");
+  assert.equal(checks.find((check) => check.id === "gateway.service")?.level, "warning");
+  assert.equal(checks.find((check) => check.id === "agent.main.workspace")?.level, "warning");
+});
+
 test("argument parser validates timeout", () => {
   assert.throws(() => parseArgs(["--timeout", "0"]), /positive/);
   assert.equal(parseArgs(["--mode", "baseline"]).mode, "baseline");
+  assert.equal(parseArgs(["--mode", "container-rehearsal"]).mode, "container-rehearsal");
   assert.equal(parseArgs(["--no-html"]).html, false);
   assert.equal(parseArgs(["--quiet"]).quiet, true);
 });

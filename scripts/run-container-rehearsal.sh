@@ -36,8 +36,20 @@ mkdir -p reports/container-rehearsal
 
 echo "[container] Running latest-version rehearsal in isolated container"
 echo "[container] Reports: reports/container-rehearsal/run"
-"$runtime" run --rm \
-  -e GUARD_MODE="${GUARD_MODE:-baseline}" \
+run_args=(run --rm)
+if [ "$runtime" = "podman" ]; then
+  run_args+=(--userns=keep-id)
+fi
+
+set +e
+"$runtime" "${run_args[@]}" \
+  -e GUARD_MODE="${GUARD_MODE:-container-rehearsal}" \
   -v "$PWD/$fixture:/fixture:ro" \
   -v "$PWD/reports/container-rehearsal:/reports" \
   "$image"
+status="$?"
+set -e
+
+echo "[container] Host HTML: $PWD/reports/container-rehearsal/run/report.html"
+echo "[container] Host JSON: $PWD/reports/container-rehearsal/run/report.json"
+exit "$status"

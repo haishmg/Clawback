@@ -8,7 +8,7 @@ if [ -d /fixture ]; then
 fi
 
 exec node /guard/bin/openclaw-upgrade-guard.js \
-  --mode "${GUARD_MODE:-baseline}" \
+  --mode "${GUARD_MODE:-container-rehearsal}" \
   --openclaw "${OPENCLAW_BIN:-openclaw}" \
   --timeout "${GUARD_TIMEOUT:-45}" \
   --out /reports/run
