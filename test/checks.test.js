@@ -66,6 +66,7 @@ test("argument parser validates timeout", () => {
   assert.throws(() => parseArgs(["--timeout", "0"]), /positive/);
   assert.equal(parseArgs(["--mode", "baseline"]).mode, "baseline");
   assert.equal(parseArgs(["--no-html"]).html, false);
+  assert.equal(parseArgs(["--quiet"]).quiet, true);
 });
 
 function ok(stdout) {
