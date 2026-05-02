@@ -1,6 +1,6 @@
 FROM node:22-bookworm
 
-ARG OPENCLAW_PACKAGE=openclaw@latest
+ARG OPENCLAW_PACKAGE
 
 ENV OPENCLAW_STATE_DIR=/home/openclaw/.openclaw \
     OPENCLAW_CONFIG_PATH=/home/openclaw/.openclaw/openclaw.json \
@@ -9,6 +9,7 @@ ENV OPENCLAW_STATE_DIR=/home/openclaw/.openclaw \
     NO_COLOR=1
 
 RUN useradd --create-home --shell /bin/bash openclaw \
+  && echo "Installing ${OPENCLAW_PACKAGE}" \
   && npm install -g "$OPENCLAW_PACKAGE"
 
 WORKDIR /guard
