@@ -14,7 +14,7 @@ Usage:
   scripts/run-upgrade-suite.sh post
 
 Modes:
-  pre   Export a sanitized fixture, then run local baseline and container rehearsal in parallel.
+  pre   Export a sanitized fixture, then run local baseline followed by container rehearsal.
   post  Run local post-upgrade comparison using reports/before-upgrade/report.json.
 
 Environment:
@@ -33,32 +33,34 @@ case "$mode" in
 
     mkdir -p "$before_dir" reports/container-rehearsal
     baseline_log="$before_dir/run.log"
+    container_log="reports/container-rehearsal/run.log"
 
-    echo "[suite] Starting local baseline in background"
+    echo "[suite] Running local baseline"
     echo "[suite] Local baseline reports: $before_dir"
+    set +e
     node bin/clawback.js \
       --mode baseline \
       --out "$before_dir" \
-      > "$baseline_log" 2>&1 &
-    baseline_pid="$!"
+      > "$baseline_log" 2>&1
+    baseline_status="$?"
+    set -e
 
-    echo "[suite] Starting container rehearsal in background"
+    echo "[suite] Running container rehearsal"
     echo "[suite] Container target: ${OPENCLAW_PACKAGE:-openclaw@latest}"
+    echo "[suite] Container output: $container_log"
+    set +e
     OPENCLAW_PACKAGE="${OPENCLAW_PACKAGE:-openclaw@latest}" \
-      npm run container:rehearse -- "$fixture" &
-    container_pid="$!"
-
-    baseline_status=0
-    container_status=0
-    wait "$baseline_pid" || baseline_status="$?"
-    wait "$container_pid" || container_status="$?"
+      npm run container:rehearse -- "$fixture" \
+      > "$container_log" 2>&1
+    container_status="$?"
+    set -e
 
     if [ "$baseline_status" -ne 0 ] || [ "$container_status" -ne 0 ]; then
       echo "pre suite failed: baseline=$baseline_status container=$container_status" >&2
-      if [ "$baseline_status" -ne 0 ]; then
-        echo "[suite] Local baseline output:" >&2
-        cat "$baseline_log" >&2
-      fi
+      echo "[suite] Local baseline output:" >&2
+      cat "$baseline_log" >&2
+      echo "[suite] Container output:" >&2
+      cat "$container_log" >&2
       exit 1
     fi
     echo "[suite] Pre-upgrade suite complete"
@@ -67,6 +69,9 @@ case "$mode" in
     echo ""
     echo "[suite] Local baseline output:"
     cat "$baseline_log"
+    echo ""
+    echo "[suite] Container output:"
+    cat "$container_log"
     ;;
   post)
     if [ ! -f "$baseline_file" ]; then

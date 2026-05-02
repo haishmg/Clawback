@@ -95,9 +95,9 @@ Expected outcome:
 
 This is the preferred pre-upgrade container decision when investigating a specific version jump. A failing target comparison should block upgrade. A passing target comparison means the target cleared the container compatibility gate, not that the live host upgrade is proven.
 
-## Parallel Pre-Upgrade Suite
+## Pre-Upgrade Suite
 
-Goal: make the normal pre-upgrade process easy and fast by running the independent checks together.
+Goal: make the normal pre-upgrade process predictable by running the local baseline first, then the container rehearsal.
 
 Command:
 
@@ -110,7 +110,7 @@ Expected outcome:
 - A sanitized fixture is exported.
 - Local baseline runs into `reports/before-upgrade`.
 - Container rehearsal runs into `reports/container-rehearsal/run`.
-- The command exits nonzero if either parallel check fails.
+- The command exits nonzero if either check fails.
 
 The post-upgrade comparison depends on the baseline and on the real upgrade being complete, so it runs separately:
 
