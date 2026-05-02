@@ -4,6 +4,7 @@ import { evaluate } from "../lib/checks.js";
 import { redact } from "../lib/redact.js";
 import { parseArgs } from "../lib/cli.js";
 import { parseJsonOutput } from "../lib/runner.js";
+import { buildRecommendation } from "../lib/recommendation.js";
 
 test("redacts common secret and phone shapes", () => {
   const output = redact({
@@ -169,6 +170,24 @@ test("gateway transport output on JSON commands is a hard failure", () => {
   });
 
   assert.equal(checks.find((check) => check.id === "command.health.json")?.level, "error");
+});
+
+test("recommendation blocks upgrades on hard errors", () => {
+  const recommendation = buildRecommendation({
+    mode: "container-rehearsal",
+    summary: { errors: 1, warnings: 0 },
+  });
+
+  assert.equal(recommendation.decision, "do-not-upgrade");
+});
+
+test("recommendation allows caution when only warnings remain", () => {
+  const recommendation = buildRecommendation({
+    mode: "preflight",
+    summary: { errors: 0, warnings: 2 },
+  });
+
+  assert.equal(recommendation.decision, "upgrade-with-caution");
 });
 
 test("argument parser validates timeout", () => {

@@ -139,6 +139,7 @@ OPENCLAW_PACKAGE=openclaw@2026.4.29 npm run suite:pre
 During a run, the CLI prints progress for each validation probe to stderr. You can see what is being checked, whether a probe is required or optional, retry attempts for JSON probes, and how long each command took. Use `--quiet` to suppress progress output.
 
 After a run, the CLI prints the most important results first: overall pass/fail, check counts, OpenClaw version, gateway/service state, configured agents/channels, top errors or warnings, and a `file://` link to the generated HTML dashboard.
+It also prints an upgrade recommendation: upgrade looks safe, upgrade with caution, do not upgrade yet, or do not trust the upgraded install yet.
 
 Each run writes:
 
