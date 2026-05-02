@@ -34,6 +34,8 @@ npm run suite:pre
 
 This exports a sanitized fixture, then runs the local baseline and container rehearsal in parallel. The suite prints `[suite]` and `[container]` progress lines for fixture export, local baseline, image build, and isolated rehearsal.
 
+The first container run can take several minutes because it builds a fresh image and installs OpenClaw inside it. On small hosts, expect the report to take around 10 minutes.
+
 Review both summaries:
 
 ```sh
