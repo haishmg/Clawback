@@ -10,6 +10,8 @@
     "check": "npm test && node bin/openclaw-upgrade-guard.js --help",
     "container:export": "node scripts/export-fixture.js",
     "container:rehearse": "bash scripts/run-container-rehearsal.sh",
+    "suite:pre": "bash scripts/run-upgrade-suite.sh pre",
+    "suite:post": "bash scripts/run-upgrade-suite.sh post",
     "test": "node --test"
   },
   "keywords": [

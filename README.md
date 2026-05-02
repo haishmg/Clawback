@@ -37,16 +37,17 @@ node bin/openclaw-upgrade-guard.js --help
 
 ## Recommended Upgrade Workflow
 
-Create a baseline before changing OpenClaw:
+Run the pre-upgrade suite before changing OpenClaw:
 
 ```sh
-openclaw-upgrade-guard --mode baseline --out reports/before-upgrade
+npm run suite:pre
 ```
 
-Review the generated files:
+This exports a sanitized fixture, then runs the local baseline and container rehearsal in parallel. Review the generated files:
 
 ```sh
 less reports/before-upgrade/summary.md
+less reports/container-rehearsal/run/summary.md
 ```
 
 Upgrade OpenClaw using your normal process.
@@ -54,10 +55,7 @@ Upgrade OpenClaw using your normal process.
 Run the post-upgrade comparison:
 
 ```sh
-openclaw-upgrade-guard \
-  --mode post-upgrade \
-  --baseline reports/before-upgrade/report.json \
-  --out reports/after-upgrade
+npm run suite:post
 ```
 
 If the post-upgrade run reports errors, fix those before trusting the upgraded install. If it reports warnings, decide whether they match known historical state or represent new risk.
@@ -72,6 +70,26 @@ OPENCLAW_PACKAGE=openclaw@latest npm run container:rehearse -- fixtures/openclaw
 ```
 
 See [docs/container-rehearsal.md](docs/container-rehearsal.md) for details and limitations.
+
+## Parallel Suite
+
+The pre-upgrade baseline and container rehearsal are independent, so the suite runs them at the same time:
+
+```sh
+npm run suite:pre
+```
+
+The post-upgrade comparison intentionally runs later, after you have upgraded OpenClaw:
+
+```sh
+npm run suite:post
+```
+
+Use `OPENCLAW_PACKAGE` to rehearse a specific OpenClaw target:
+
+```sh
+OPENCLAW_PACKAGE=openclaw@2026.4.29 npm run suite:pre
+```
 
 ## Exit Codes
 

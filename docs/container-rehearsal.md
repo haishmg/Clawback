@@ -87,3 +87,26 @@ For real confidence, use both workflows:
 1. Container rehearsal with a sanitized fixture.
 2. Local baseline before upgrade.
 3. Local post-upgrade comparison after upgrade.
+
+## Run With the Local Baseline in Parallel
+
+The container rehearsal and local baseline do not depend on each other, so the project includes a convenience suite:
+
+```sh
+npm run suite:pre
+```
+
+This command:
+
+- exports `fixtures/openclaw-sanitized`
+- starts the local baseline into `reports/before-upgrade`
+- starts the container rehearsal into `reports/container-rehearsal/run`
+- waits for both checks to finish
+
+After upgrading OpenClaw, run:
+
+```sh
+npm run suite:post
+```
+
+The post-upgrade comparison uses `reports/before-upgrade/report.json` by default.

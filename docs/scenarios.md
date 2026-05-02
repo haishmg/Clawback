@@ -59,6 +59,29 @@ Expected outcome:
 
 This scenario complements local checks. It does not replace local post-upgrade validation because live channel credentials and host system services are intentionally not copied into the fixture.
 
+## Parallel Pre-Upgrade Suite
+
+Goal: make the normal pre-upgrade process easy and fast by running the independent checks together.
+
+Command:
+
+```sh
+npm run suite:pre
+```
+
+Expected outcome:
+
+- A sanitized fixture is exported.
+- Local baseline runs into `reports/before-upgrade`.
+- Container rehearsal runs into `reports/container-rehearsal/run`.
+- The command exits nonzero if either parallel check fails.
+
+The post-upgrade comparison depends on the baseline and on the real upgrade being complete, so it runs separately:
+
+```sh
+npm run suite:post
+```
+
 ## Gateway Service Breakage
 
 The guard should fail when:
