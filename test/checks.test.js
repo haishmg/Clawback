@@ -65,6 +65,7 @@ test("baseline evaluator catches missing agents and channels", () => {
 test("argument parser validates timeout", () => {
   assert.throws(() => parseArgs(["--timeout", "0"]), /positive/);
   assert.equal(parseArgs(["--mode", "baseline"]).mode, "baseline");
+  assert.equal(parseArgs(["--no-html"]).html, false);
 });
 
 function ok(stdout) {

@@ -134,8 +134,17 @@ Each run writes:
 
 - `report.json`: machine-readable command results and checks with common secrets redacted.
 - `summary.md`: human-readable findings and next steps.
+- `report.html`: interactive visual dashboard with severity filters, search, expandable details, and command timing bars.
 
 The JSON report intentionally includes command output summaries. Do not publish reports without reviewing them, especially if your local OpenClaw install uses custom channels, private workspaces, or unusual plugin configuration.
+
+Render an HTML dashboard for an existing JSON report:
+
+```sh
+npm run report:html -- reports/before-upgrade/report.json
+```
+
+Then open the generated `report.html` in a browser.
 
 ## Current Limitations
 
