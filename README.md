@@ -128,6 +128,34 @@ Use `OPENCLAW_PACKAGE` to rehearse a specific OpenClaw target:
 OPENCLAW_PACKAGE=openclaw@2026.4.29 npm run suite:pre
 ```
 
+## Guarded Update And Rollback
+
+After a target version has a passing container rehearsal, the guard can moderate the host update. It refuses to update unless the report is for the same target version and has zero hard errors.
+
+Dry-run the host update first:
+
+```sh
+npm run upgrade:apply -- --target 2026.4.24 --report reports/container-rehearsal/run/report.json
+```
+
+Apply the update only after reviewing the dry-run:
+
+```sh
+npm run upgrade:apply -- --target 2026.4.24 --report reports/container-rehearsal/run/report.json --yes
+```
+
+The command writes a rollback plan under `reports/updates/`. If post-upgrade validation fails, roll back to the previously installed version:
+
+```sh
+npm run upgrade:rollback -- --plan reports/updates/<run>/rollback.json --yes
+```
+
+Then run:
+
+```sh
+npm run suite:post
+```
+
 ## Exit Codes
 
 - `0`: no hard errors.

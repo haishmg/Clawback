@@ -166,3 +166,23 @@ npm run suite:post
 ```
 
 The post-upgrade comparison uses `reports/before-upgrade/report.json` by default.
+
+## Guarded Host Update
+
+The container rehearsal is non-mutating. To let the guard moderate a real host update, pass the passing report to the guarded updater:
+
+```sh
+npm run upgrade:apply -- --target 2026.4.24 --report reports/container-rehearsal/run/report.json
+```
+
+Without `--yes`, this validates the report and runs `openclaw update --tag <target> --dry-run --json` only. To apply the update:
+
+```sh
+npm run upgrade:apply -- --target 2026.4.24 --report reports/container-rehearsal/run/report.json --yes
+```
+
+The updater records the currently installed version and writes a rollback plan under `reports/updates/`. If post-upgrade validation fails:
+
+```sh
+npm run upgrade:rollback -- --plan reports/updates/<run>/rollback.json --yes
+```
