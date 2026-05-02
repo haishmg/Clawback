@@ -34,7 +34,7 @@ jobs:
           echo "tarball=$(ls clawback-*.tgz)" >> "$GITHUB_OUTPUT"
 
       - name: Upload package artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: clawback-package
           path: clawback-*.tgz
