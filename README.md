@@ -1,13 +1,13 @@
-# OpenClaw Upgrade Guard
+# Clawback
 
-OpenClaw Upgrade Guard is a small preflight and post-upgrade validation tool for OpenClaw installs.
-It captures the current setup, checks the parts most likely to break during an upgrade, redacts sensitive values, and writes a report that can be compared after installing a newer OpenClaw version.
+Clawback is a preflight, container rehearsal, guarded update, and rollback safety tool for OpenClaw installs.
+It captures the current setup, checks the parts most likely to bite during an upgrade, redacts sensitive values, and writes a report that can be compared after installing a newer OpenClaw version.
 
 The project is designed for personal setups first, but the checks are generic enough to share with other OpenClaw users.
 
 ## Platform Support
 
-OpenClaw Upgrade Guard is currently Linux/POSIX-first.
+Clawback is currently Linux/POSIX-first.
 
 - The Node.js CLI is intended to be portable, but it has only been validated on Linux.
 - The helper scripts use `bash` and POSIX shell behavior.
@@ -37,7 +37,7 @@ The tool treats immediate runtime failures as errors. Historical task failures, 
 From a checkout:
 
 ```sh
-cd /path/to/openclaw-upgrade-guard
+cd /path/to/clawback
 npm install
 npm link
 ```
@@ -45,26 +45,26 @@ npm link
 After `npm link`, run it from anywhere:
 
 ```sh
-openclaw-upgrade-guard --help
+clawback --help
 ```
 
 Or run directly from inside the checkout:
 
 ```sh
-cd /path/to/openclaw-upgrade-guard
-node bin/openclaw-upgrade-guard.js --help
+cd /path/to/clawback
+node bin/clawback.js --help
 ```
 
 If you are outside the checkout, use the full path:
 
 ```sh
-node /path/to/openclaw-upgrade-guard/bin/openclaw-upgrade-guard.js --help
+node /path/to/clawback/bin/clawback.js --help
 ```
 
 For example, on this host:
 
 ```sh
-node /home/pii/openclaw-upgrade-guard/bin/openclaw-upgrade-guard.js --help
+node /home/pii/openclaw-upgrade-guard/bin/clawback.js --help
 ```
 
 ## Recommended Upgrade Workflow
@@ -103,7 +103,7 @@ Post-upgrade mode waits up to 120 seconds for the gateway to settle before it st
 
 If the post-upgrade run reports errors, fix those before trusting the upgraded install or roll back with the recorded rollback plan. If it reports warnings, decide whether they match known historical state or represent new risk.
 
-Running `node bin/openclaw-upgrade-guard.js` directly only runs the local guard. It does not start Docker or Podman. Use `npm run suite:pre` when you want the local baseline and latest-version container rehearsal together. Container rehearsal uses `container-rehearsal` mode, which checks the sanitized config/state with latest OpenClaw, starts a foreground gateway inside the container, and treats failed gateway RPC/probe results as hard errors. Host-only features such as systemd service installation and absolute host workspace paths remain warnings.
+Running `node bin/clawback.js` directly only runs the local guard. It does not start Docker or Podman. Use `npm run suite:pre` when you want the local baseline and latest-version container rehearsal together. Container rehearsal uses `container-rehearsal` mode, which checks the sanitized config/state with latest OpenClaw, starts a foreground gateway inside the container, and treats failed gateway RPC/probe results as hard errors. Host-only features such as systemd service installation and absolute host workspace paths remain warnings.
 
 ## Container-Level Checks
 
@@ -240,5 +240,5 @@ npm run check
 Run against a non-default OpenClaw executable:
 
 ```sh
-node bin/openclaw-upgrade-guard.js --openclaw /path/to/openclaw --mode baseline
+node bin/clawback.js --openclaw /path/to/openclaw --mode baseline
 ```

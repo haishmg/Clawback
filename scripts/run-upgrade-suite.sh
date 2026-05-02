@@ -35,7 +35,7 @@ case "$mode" in
 
     echo "[suite] Starting local baseline in background"
     echo "[suite] Local baseline reports: $before_dir"
-    node bin/openclaw-upgrade-guard.js \
+    node bin/clawback.js \
       --mode baseline \
       --out "$before_dir" &
     baseline_pid="$!"
@@ -69,7 +69,7 @@ case "$mode" in
     echo "[suite] Running post-upgrade comparison"
     echo "[suite] Baseline: $baseline_file"
     echo "[suite] Output: $after_dir"
-    node bin/openclaw-upgrade-guard.js \
+    node bin/clawback.js \
       --mode post-upgrade \
       --baseline "$baseline_file" \
       --out "$after_dir"

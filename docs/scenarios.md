@@ -1,6 +1,6 @@
 # Validation Scenarios
 
-This document describes the scenarios OpenClaw Upgrade Guard is meant to cover before the project is opened up for wider use.
+This document describes the scenarios Clawback is meant to cover before the project is opened up for wider use.
 
 ## Platform Scope
 
@@ -15,7 +15,7 @@ Goal: prove the existing install is healthy enough to compare against.
 Command:
 
 ```sh
-openclaw-upgrade-guard --mode baseline --out reports/before-upgrade
+clawback --mode baseline --out reports/before-upgrade
 ```
 
 Expected outcome:
@@ -35,7 +35,7 @@ Goal: detect regressions introduced by the newly installed OpenClaw version.
 Command:
 
 ```sh
-openclaw-upgrade-guard --mode post-upgrade --baseline reports/before-upgrade/report.json
+clawback --mode post-upgrade --baseline reports/before-upgrade/report.json
 ```
 
 Expected outcome:

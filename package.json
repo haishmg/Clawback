@@ -1,13 +1,14 @@
 {
-  "name": "openclaw-upgrade-guard",
+  "name": "clawback",
   "version": "0.1.0",
-  "description": "Preflight and post-upgrade validation for OpenClaw installations.",
+  "description": "Container rehearsal, guarded update, and rollback safety for OpenClaw upgrades.",
   "type": "module",
   "bin": {
+    "clawback": "./bin/clawback.js",
     "openclaw-upgrade-guard": "./bin/openclaw-upgrade-guard.js"
   },
   "scripts": {
-    "check": "npm test && node bin/openclaw-upgrade-guard.js --help",
+    "check": "npm test && node bin/clawback.js --help",
     "container:export": "node scripts/export-fixture.js",
     "container:compare": "bash scripts/run-container-comparison.sh",
     "container:rehearse": "bash scripts/run-container-rehearsal.sh",

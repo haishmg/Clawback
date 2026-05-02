@@ -15,7 +15,7 @@ fi
 
 fixture="${1:-fixtures/openclaw-sanitized}"
 package="${OPENCLAW_PACKAGE:-openclaw@latest}"
-image="${OPENCLAW_GUARD_IMAGE:-openclaw-upgrade-guard:local}"
+image="${OPENCLAW_GUARD_IMAGE:-clawback:local}"
 
 if [ ! -d "$fixture" ]; then
   echo "[container] Fixture directory not found: $fixture" >&2

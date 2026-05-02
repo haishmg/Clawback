@@ -110,7 +110,7 @@ function rollbackUpdate(options, openclaw) {
 }
 
 function validatePassingReport(report, target, { acceptLowFidelity = false } = {}) {
-  if (report.tool !== "openclaw-upgrade-guard") fail("Report is not an OpenClaw Upgrade Guard report");
+  if (report.tool !== "clawback" && report.tool !== "openclaw-upgrade-guard") fail("Report is not a Clawback report");
   if (report.mode !== "container-rehearsal") fail(`Expected a container-rehearsal report, got ${report.mode}`);
   if (report.result !== "pass") fail(`Refusing update because rehearsal result is ${report.result}`);
   if ((report.summary?.errors || 0) > 0) fail("Refusing update because rehearsal report contains errors");

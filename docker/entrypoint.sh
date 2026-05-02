@@ -46,7 +46,7 @@ fi
 
 set +e
 guard_args=(
-  /guard/bin/openclaw-upgrade-guard.js
+  /guard/bin/clawback.js
   --mode "${GUARD_MODE:-container-rehearsal}" \
   --openclaw "${OPENCLAW_BIN:-openclaw}" \
   --timeout "${GUARD_TIMEOUT:-45}" \

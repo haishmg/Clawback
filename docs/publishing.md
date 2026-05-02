@@ -20,12 +20,14 @@ Use this checklist before making the repository public.
 
 ## Suggested GitHub Description
 
-Preflight and post-upgrade validation for OpenClaw installations.
+Clawback: container rehearsal, guarded update, and rollback safety for OpenClaw upgrades.
 
 ## Suggested Topics
 
 - `openclaw`
+- `clawback`
 - `upgrade`
+- `rollback`
 - `healthcheck`
 - `nodejs`
 - `cli`
