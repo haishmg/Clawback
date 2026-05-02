@@ -28,15 +28,20 @@ USAGE
 
 case "$mode" in
   pre)
+    echo "[suite] Exporting sanitized OpenClaw fixture from ~/.openclaw to $fixture"
     npm run container:export -- ~/.openclaw "$fixture"
 
     mkdir -p "$before_dir" reports/container-rehearsal
 
+    echo "[suite] Starting local baseline in background"
+    echo "[suite] Local baseline reports: $before_dir"
     node bin/openclaw-upgrade-guard.js \
       --mode baseline \
       --out "$before_dir" &
     baseline_pid="$!"
 
+    echo "[suite] Starting container rehearsal in background"
+    echo "[suite] Container target: ${OPENCLAW_PACKAGE:-openclaw@latest}"
     OPENCLAW_PACKAGE="${OPENCLAW_PACKAGE:-openclaw@latest}" \
       npm run container:rehearse -- "$fixture" &
     container_pid="$!"
@@ -50,6 +55,9 @@ case "$mode" in
       echo "pre suite failed: baseline=$baseline_status container=$container_status" >&2
       exit 1
     fi
+    echo "[suite] Pre-upgrade suite complete"
+    echo "[suite] Local HTML: $before_dir/report.html"
+    echo "[suite] Container HTML: reports/container-rehearsal/run/report.html"
     ;;
   post)
     if [ ! -f "$baseline_file" ]; then
@@ -58,6 +66,9 @@ case "$mode" in
       exit 1
     fi
 
+    echo "[suite] Running post-upgrade comparison"
+    echo "[suite] Baseline: $baseline_file"
+    echo "[suite] Output: $after_dir"
     node bin/openclaw-upgrade-guard.js \
       --mode post-upgrade \
       --baseline "$baseline_file" \
