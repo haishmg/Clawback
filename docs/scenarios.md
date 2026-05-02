@@ -68,7 +68,9 @@ Expected outcome:
 - Static config and agent checks pass or produce actionable warnings.
 - The report warns that the container is not a full host replica.
 
-This scenario complements local checks. It does not replace local post-upgrade validation because live channel credentials and host system services are intentionally not copied into the fixture.
+This scenario is the first upgrade gate because it is cheap, repeatable, and non-mutating. It should catch target package install failures, sanitized config/schema incompatibility, gateway startup/readiness/RPC regressions, lost gateway identity, scope regressions, command JSON regressions, and resource pressure.
+
+This scenario complements local checks. It does not replace local post-upgrade validation because live channel credentials, host system services, external workspaces, task history, locks, logs, and runtime caches are intentionally not copied into the default fixture.
 
 ## Container Baseline Comparison
 
@@ -89,8 +91,9 @@ Expected outcome:
 - New command failures or newly unparseable command output are errors.
 - Channel accounts that were configured, linked, or probeable in the baseline keep that state.
 - Resource regressions are reported against the baseline, not only against fixed thresholds.
+- The low-fidelity container warning remains visible so the user does not mistake the result for a full host replica.
 
-This is the preferred pre-upgrade container decision when investigating a specific version jump.
+This is the preferred pre-upgrade container decision when investigating a specific version jump. A failing target comparison should block upgrade. A passing target comparison means the target cleared the container compatibility gate, not that the live host upgrade is proven.
 
 ## Parallel Pre-Upgrade Suite
 

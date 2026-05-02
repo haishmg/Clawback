@@ -69,20 +69,29 @@ node /home/pii/openclaw-upgrade-guard/bin/openclaw-upgrade-guard.js --help
 
 ## Recommended Upgrade Workflow
 
+Use the guard as a staged upgrade gate:
+
+1. Run a local baseline on the current working install.
+2. Run a container-level target check against a sanitized fixture.
+3. If the container check passes, use the guarded updater.
+4. Run post-upgrade validation on the live host after the gateway settles.
+
+The container check is intentionally first because it is non-mutating and catches package/config/gateway compatibility problems before the host is touched. It is not a complete host replica, so it cannot be the only gate.
+
 Run the pre-upgrade suite before changing OpenClaw:
 
 ```sh
 npm run suite:pre
 ```
 
-This exports a sanitized fixture, then runs the local baseline and container rehearsal in parallel. Review the generated files:
+This exports a sanitized fixture, then runs the local baseline and container rehearsal in parallel. Review both generated files:
 
 ```sh
 less reports/before-upgrade/summary.md
 less reports/container-rehearsal/run/summary.md
 ```
 
-Upgrade OpenClaw using your normal process.
+If the container rehearsal fails, do not upgrade. If it passes, use the guarded update command printed by the rehearsal output.
 
 Run the post-upgrade comparison:
 
@@ -92,20 +101,22 @@ npm run suite:post
 
 Post-upgrade mode waits up to 120 seconds for the gateway to settle before it starts judging health, channels, and baseline drift. Use `--settle <seconds>` when running the CLI directly if a host needs a longer or shorter restart window.
 
-If the post-upgrade run reports errors, fix those before trusting the upgraded install. If it reports warnings, decide whether they match known historical state or represent new risk.
+If the post-upgrade run reports errors, fix those before trusting the upgraded install or roll back with the recorded rollback plan. If it reports warnings, decide whether they match known historical state or represent new risk.
 
 Running `node bin/openclaw-upgrade-guard.js` directly only runs the local guard. It does not start Docker or Podman. Use `npm run suite:pre` when you want the local baseline and latest-version container rehearsal together. Container rehearsal uses `container-rehearsal` mode, which checks the sanitized config/state with latest OpenClaw, starts a foreground gateway inside the container, and treats failed gateway RPC/probe results as hard errors. Host-only features such as systemd service installation and absolute host workspace paths remain warnings.
 
-## Container Rehearsal
+## Container-Level Checks
 
-For a safer dry run, export a sanitized copy of your OpenClaw state and test it in Docker or Podman before touching the real host:
+Container rehearsal is the project’s main non-mutating upgrade check. It builds a clean Linux image, installs the requested OpenClaw package, loads a sanitized copy of your OpenClaw state, starts a foreground gateway, waits for readiness, and then runs the same validation probes used by the local guard.
+
+Run a plain container rehearsal:
 
 ```sh
 npm run container:export -- ~/.openclaw fixtures/openclaw-sanitized
 OPENCLAW_PACKAGE=openclaw@latest npm run container:rehearse -- fixtures/openclaw-sanitized
 ```
 
-For the most useful version decision, compare the target against a same-environment container baseline from your currently working version:
+For the most useful version decision, compare the target against a same-harness container baseline from your currently working version:
 
 ```sh
 npm run container:export -- ~/.openclaw fixtures/openclaw-sanitized
@@ -113,6 +124,15 @@ OPENCLAW_BASELINE_PACKAGE=openclaw@2026.4.23 OPENCLAW_PACKAGE=openclaw@2026.4.29
 ```
 
 This first runs the baseline package against the exported fixture and saves it under `reports/container-baselines/`. It then runs the target package with `--baseline` against that control report, so warnings already present in the current version do not become false blockers, but new capability regressions do.
+
+Container-level checks can catch:
+
+- Target package install failures.
+- Config/schema incompatibility with the sanitized state.
+- Gateway startup, readiness, RPC, identity, and scope regressions.
+- Command output changes, including commands that stop returning parseable JSON.
+- Agent/channel metadata drift that is visible in the fixture.
+- CPU, memory, and process RSS pressure during the rehearsal.
 
 Important: the sanitized container is not a full clone of the live host. It does not exercise the user systemd service, live channel auth/device stores, external workspace directories, task history, locks, logs, media, memory, or runtime caches. Treat it as a compatibility smoke test. A real upgrade decision still needs the local baseline and post-upgrade validation.
 
@@ -146,7 +166,7 @@ OPENCLAW_PACKAGE=openclaw@2026.4.29 npm run suite:pre
 
 ## Guarded Update And Rollback
 
-After a target version has a passing container rehearsal, the guard can moderate the host update. It refuses to update unless the report is for the same target version and has zero hard errors.
+After a target version has a passing container rehearsal, the guard can moderate the host update. It refuses to update unless the report is for the same target version and has zero hard errors. Reports marked with the `container.fidelity.host_replica` warning also require explicit `--accept-low-fidelity` acknowledgement before the host is changed.
 
 Dry-run the host update first:
 
@@ -157,7 +177,7 @@ npm run upgrade:apply -- --target 2026.4.24 --report reports/container-rehearsal
 Apply the update only after reviewing the dry-run:
 
 ```sh
-npm run upgrade:apply -- --target 2026.4.24 --report reports/container-rehearsal/run/report.json --yes
+npm run upgrade:apply -- --target 2026.4.24 --report reports/container-rehearsal/run/report.json --accept-low-fidelity --yes
 ```
 
 The command writes a rollback plan under `reports/updates/`. If post-upgrade validation fails, roll back to the previously installed version:
@@ -203,9 +223,9 @@ Then open the generated `report.html` in a browser.
 
 ## Current Limitations
 
-- It does not perform the upgrade for you.
+- Container rehearsal is not a full live-host replica unless you deliberately mount/copy additional state.
 - It does not send live test messages to chat channels.
-- It does not mutate OpenClaw state or run repair commands.
+- It does not run arbitrary repair commands.
 - Optional OpenClaw commands vary by version, so unavailable optional commands become warnings rather than hard failures.
 
 ## Development

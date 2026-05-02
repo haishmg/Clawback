@@ -1,8 +1,27 @@
-# Container Upgrade Rehearsal
+# Container-Level Upgrade Checks
 
-The local guard checks your real OpenClaw install in place. The container rehearsal checks a sanitized copy of your OpenClaw state against a fresh OpenClaw package in an isolated filesystem. It is a compatibility smoke test, not a full clone of the live host.
+Container rehearsal is the first upgrade gate. It checks a target OpenClaw package in an isolated Linux filesystem before the real host is changed.
 
-This is useful before installing a new OpenClaw version on your actual host.
+It is intentionally non-mutating: the helper builds a container image, installs the target package, copies in a sanitized fixture, starts `openclaw gateway run`, waits for gateway readiness, then runs the guard inside the container.
+
+This is a compatibility smoke test, not a full clone of the live host. A passing container result means the target can load the redacted fixture and pass container probes. It does not prove that the live host package replacement, user systemd service, private channel/device state, or external workspaces will survive the upgrade.
+
+## Recommended Container Gate
+
+For upgrade decisions, prefer a control-vs-target comparison instead of a one-off latest-version rehearsal:
+
+```sh
+npm run container:export -- ~/.openclaw fixtures/openclaw-sanitized
+OPENCLAW_BASELINE_PACKAGE=openclaw@2026.4.24 OPENCLAW_PACKAGE=openclaw@2026.4.25 npm run container:compare -- fixtures/openclaw-sanitized
+```
+
+This runs the current/baseline package in the same container harness, saves that report, then runs the target package against it. That makes the result much more useful because container noise already present in the current version is not treated as a target regression.
+
+Use the result this way:
+
+- `FAIL`: do not upgrade. Review the hard errors first.
+- `PASS` with `container.fidelity.host_replica`: the target passed the sanitized compatibility gate, but the report is still low-fidelity versus the live host.
+- `PASS` without hard errors: proceed only through the guarded updater and live post-upgrade validation.
 
 ## Requirements
 
@@ -46,7 +65,9 @@ By default, workspace files under `~/.openclaw/workspace` are not copied. To inc
 node scripts/export-fixture.js ~/.openclaw fixtures/openclaw-sanitized --include-workspaces
 ```
 
-## Rehearse Against Latest OpenClaw
+The default fixture deliberately skips sensitive or bulky runtime state. That is good for open-source sharing, but it also means the default container is low-fidelity. For private troubleshooting, you can improve fidelity by deliberately mounting or copying more state, but review secrets before sharing any resulting fixture or report.
+
+## Plain Rehearsal
 
 ```sh
 npm run container:rehearse -- fixtures/openclaw-sanitized
@@ -58,7 +79,9 @@ Reports are written to:
 reports/container-rehearsal/run/
 ```
 
-The rehearsal starts `openclaw gateway run` in the container before running checks. It waits for the gateway startup log to report ready, then keeps waiting until `openclaw gateway probe --json` reports `ok: true`. This avoids racing OpenClaw's local device pairing/auth setup, which may complete after the HTTP server starts. Gateway RPC and probe failures are hard errors because they indicate the target OpenClaw package cannot run the replicated setup well enough to answer local health checks. Host service installation checks still warn instead of failing because the container does not run your user-level `systemd`.
+The rehearsal starts `openclaw gateway run` in the container before running checks. It waits for the gateway startup log to report ready, then keeps waiting until `openclaw gateway probe --json` reports `ok: true`. This avoids racing OpenClaw's local device pairing/auth setup, which may complete after the HTTP server starts.
+
+Gateway RPC, identity, readiness, and scope regressions are the most important container-level signals. For example, a target that starts but loses `operator.read` scope should fail the container gate. Host service installation checks still warn instead of failing because the container does not run your user-level `systemd`.
 
 The gateway startup log is written to:
 
@@ -129,6 +152,9 @@ Can prove:
 - The target OpenClaw package installs in a clean Node image.
 - Your sanitized config shape still parses.
 - The target gateway can start in the isolated fixture and answer local RPC/probe checks.
+- Gateway identity, reachability, readiness, and auth/scope behavior did not regress within the container harness.
+- Version-to-version command output remains parseable where the current version was parseable.
+- CPU, memory, and process RSS remain inside configured thresholds during the rehearsal.
 - Static agent/workspace/session metadata survives the new version.
 - The guard itself works in a clean Linux environment.
 
@@ -170,6 +196,8 @@ npm run upgrade:apply -- --target <version> --report <report.json> --accept-low-
 ```
 
 The first command is a host update dry-run. The second command applies the update and writes a rollback plan under `reports/updates/`. The `--accept-low-fidelity` flag is deliberately explicit because the report did not replicate live service restart behavior or private channel/device state.
+
+Do not skip the post-upgrade host validation after applying. Container pass plus guarded update is only the pre-upgrade half of the workflow.
 
 You can also run the two steps manually:
 
