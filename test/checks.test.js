@@ -323,13 +323,23 @@ test("resource evaluator warns on pressure", () => {
   assert.equal(checks.find((check) => check.id === "resources.process_rss")?.level, "warning");
 });
 
-test("recommendation blocks upgrades on hard errors", () => {
+test("recommendation blocks target upgrades on hard errors", () => {
   const recommendation = buildRecommendation({
     mode: "container-rehearsal",
     summary: { errors: 1, warnings: 0 },
   });
 
   assert.equal(recommendation.decision, "do-not-upgrade");
+});
+
+test("recommendation separates local environment baseline failures from target failures", () => {
+  const recommendation = buildRecommendation({
+    mode: "baseline",
+    summary: { errors: 1, warnings: 0 },
+  });
+
+  assert.equal(recommendation.decision, "environment-not-ready");
+  assert.match(recommendation.message, /before any target OpenClaw version was tested/);
 });
 
 test("recommendation allows caution when only warnings remain", () => {

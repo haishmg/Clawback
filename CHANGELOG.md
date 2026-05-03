@@ -10,6 +10,10 @@ Clawback uses semantic versioning:
 
 ## Unreleased
 
+### Fixed
+
+- Clarify pre-upgrade suite failures that happen before the target container runs as environment blocks, not target OpenClaw version validation failures.
+
 ## [0.3.1] - 2026-05-03
 
 ### Fixed

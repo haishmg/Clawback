@@ -146,7 +146,8 @@ case "$mode" in
     set -e
 
     if [ "$baseline_status" -ne 0 ]; then
-      echo "pre suite failed: baseline=$baseline_status" >&2
+      echo "pre suite blocked: local environment baseline=$baseline_status" >&2
+      echo "[suite] Target container was not run; this is not a target OpenClaw version validation failure." >&2
       echo "[suite] Local baseline output:" >&2
       cat "$baseline_log" >&2
       exit 1
@@ -176,14 +177,16 @@ case "$mode" in
     fi
 
     if [ ! -f "$container_baseline_file" ]; then
-      echo "pre suite failed: container baseline report was not written: $container_baseline_file" >&2
+      echo "pre suite blocked: current-version container baseline report was not written: $container_baseline_file" >&2
+      echo "[suite] Target container was not run; this is not a target OpenClaw version validation failure." >&2
       echo "[suite] Container baseline output:" >&2
       cat "$container_baseline_log" >&2
       exit 1
     fi
 
     if [ "$container_baseline_status" -ne 0 ]; then
-      echo "pre suite failed: container-baseline=$container_baseline_status" >&2
+      echo "pre suite blocked: current-version container baseline=$container_baseline_status" >&2
+      echo "[suite] Target container was not run; this is not a target OpenClaw version validation failure." >&2
       echo "[suite] Local baseline output:" >&2
       cat "$baseline_log" >&2
       echo "[suite] Container baseline output:" >&2
