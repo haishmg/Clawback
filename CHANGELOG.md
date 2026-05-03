@@ -10,9 +10,27 @@ Clawback uses semantic versioning:
 
 ## Unreleased
 
+## [0.3.1] - 2026-05-03
+
 ### Fixed
 
 - Make `suite:pre` compare the target container against a same-harness current-version container baseline, so target regressions such as lost gateway identity or missing scopes become hard failures instead of standalone container warnings.
+
+## [0.3.0] - 2026-05-03
+
+### Added
+
+- `--private-fixture` for pre-upgrade suites to include workspace files and plugin runtime deps in private container rehearsals.
+- `--include-plugin-runtime-deps` for direct fixture exports.
+- `--keep-image` for preserving a rehearsal image when debugging.
+
+### Changed
+
+- Container rehearsals remove the built rehearsal image after verification by default.
+- `npm test` now targets project tests only, so generated private fixture files are not discovered as tests.
+
+### Fixed
+
 - Prevent overlapping pre-upgrade suite or container rehearsal runs from corrupting shared logs, reports, and container images.
 
 ## [0.2.1] - 2026-05-02

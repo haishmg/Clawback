@@ -1,12 +1,13 @@
-# Clawback 0.2.1
+# Clawback 0.3.1
 
 ## Highlights
 
-- Adds `npm run suite:pre -- --target <version>` for selecting the OpenClaw target package without setting `OPENCLAW_PACKAGE`.
-- Supports version, dist-tag, and full package specs, for example `2026.4.26`, `beta`, or `openclaw@2026.4.26`.
-- Keeps `OPENCLAW_PACKAGE` support for automation and backward compatibility.
+- Fixes `npm run suite:pre` so the target container is compared against a same-harness container baseline for the currently installed OpenClaw version.
+- Makes regressions like lost gateway identity or new `missing scope: operator.read` errors hard failures instead of standalone container warnings.
+- Keeps the local live baseline for host context while using the container baseline for target-vs-current upgrade decisions.
 
 ## Validation
 
 - `npm run ci`
 - `npm pack --dry-run`
+- `npm run suite:pre -- --target 2026.4.29 --private-fixture` now fails as expected with `baseline.gateway.self` and `baseline.gateway.error`.
