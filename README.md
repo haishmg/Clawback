@@ -4,6 +4,12 @@ Clawback is an upgrade safety tool for OpenClaw installs. It captures a local ba
 
 It is Linux/POSIX-first today. The CLI may work elsewhere, but the helper scripts assume `bash`, and container rehearsal expects Docker or Podman.
 
+## Why This Exists
+
+Clawback started after a real OpenClaw upgrade path hurt more than it should have. A working install moved from `2026.4.26` toward `2026.4.29`, hit upgrade issues, then even `2026.4.26` stopped being a good recovery point. The setup eventually had to be manually rolled back to `2026.4.23`, where OpenClaw was performant and stable again.
+
+That experience exposed the core problem this project tries to solve: every OpenClaw install can be different. Agents, channels, gateway auth, task history, workspace paths, systemd state, device links, and host resources all matter. A version that looks fine in a generic smoke test can still break a specific personal setup. Clawback gives users a repeatable way to capture their own baseline, rehearse a target version in a container, compare behavior, and keep a rollback path ready before touching the live install.
+
 ## Install
 
 Use the latest release tag for a stable checkout:
