@@ -22,7 +22,8 @@ Usage:
   scripts/run-upgrade-suite.sh post
 
 Modes:
-  pre   Export a sanitized fixture, then run local baseline and container rehearsal in parallel.
+  pre   Export a sanitized fixture, run local and same-harness container baselines,
+        then compare the target container against the container baseline.
   post  Run local post-upgrade comparison using reports/before-upgrade/report.json.
 
 Options:
@@ -130,47 +131,101 @@ case "$mode" in
     mkdir -p "$before_dir" reports/container-rehearsal
     target_name="$(safe_name "$target_package")"
     baseline_log="$before_dir/run.log"
+    container_baseline_log="reports/container-rehearsal/baseline.log"
     container_log="reports/container-rehearsal/run.log"
     container_image="clawback:${target_name}"
 
     echo "[suite] Starting local baseline"
     echo "[suite] Local baseline reports: $before_dir"
+    set +e
     node bin/clawback.js \
       --mode baseline \
       --out "$before_dir" \
-      > "$baseline_log" 2>&1 &
-    baseline_pid="$!"
+      > "$baseline_log" 2>&1
+    baseline_status="$?"
+    set -e
+
+    if [ "$baseline_status" -ne 0 ]; then
+      echo "pre suite failed: baseline=$baseline_status" >&2
+      echo "[suite] Local baseline output:" >&2
+      cat "$baseline_log" >&2
+      exit 1
+    fi
+
+    current_runtime="$(node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync(process.argv[1], 'utf8')); const v=r.commands?.status?.json?.runtimeVersion; if (!v) process.exit(1); console.log(v);" "$before_dir/report.json")"
+    current_package="openclaw@$current_runtime"
+    current_name="$(safe_name "$current_package")"
+    container_baseline_dir="reports/container-baselines/$current_runtime"
+    container_baseline_file="$container_baseline_dir/report.json"
+    mkdir -p "$container_baseline_dir"
+
+    echo "[suite] Starting container baseline"
+    echo "[suite] Container baseline package: $current_package"
+    echo "[suite] Container baseline reports: $container_baseline_dir"
+    set +e
+    OPENCLAW_PACKAGE="$current_package" \
+    OPENCLAW_GUARD_IMAGE="clawback:baseline-${current_name}" \
+    OPENCLAW_KEEP_CONTAINER_IMAGE="$keep_container_image" \
+      npm run container:rehearse -- "$fixture" \
+      > "$container_baseline_log" 2>&1
+    container_baseline_status="$?"
+    set -e
+
+    if [ -d reports/container-rehearsal/run ]; then
+      cp -a reports/container-rehearsal/run/. "$container_baseline_dir"/
+    fi
+
+    if [ ! -f "$container_baseline_file" ]; then
+      echo "pre suite failed: container baseline report was not written: $container_baseline_file" >&2
+      echo "[suite] Container baseline output:" >&2
+      cat "$container_baseline_log" >&2
+      exit 1
+    fi
+
+    if [ "$container_baseline_status" -ne 0 ]; then
+      echo "pre suite failed: container-baseline=$container_baseline_status" >&2
+      echo "[suite] Local baseline output:" >&2
+      cat "$baseline_log" >&2
+      echo "[suite] Container baseline output:" >&2
+      cat "$container_baseline_log" >&2
+      exit 1
+    fi
 
     echo "[suite] Starting container rehearsal"
     echo "[suite] Container target: $target_package"
+    echo "[suite] Container baseline: $container_baseline_file"
     echo "[suite] Container image: $container_image"
     echo "[suite] Container output: $container_log"
+    set +e
     OPENCLAW_PACKAGE="$target_package" \
     OPENCLAW_GUARD_IMAGE="$container_image" \
     OPENCLAW_KEEP_CONTAINER_IMAGE="$keep_container_image" \
+    OPENCLAW_BASELINE_FILE="$container_baseline_file" \
       npm run container:rehearse -- "$fixture" \
-      > "$container_log" 2>&1 &
-    container_pid="$!"
+      > "$container_log" 2>&1
+    container_status="$?"
+    set -e
 
-    baseline_status=0
-    container_status=0
-    wait "$baseline_pid" || baseline_status="$?"
-    wait "$container_pid" || container_status="$?"
-
-    if [ "$baseline_status" -ne 0 ] || [ "$container_status" -ne 0 ]; then
-      echo "pre suite failed: baseline=$baseline_status container=$container_status" >&2
+    if [ "$container_status" -ne 0 ]; then
+      echo "pre suite failed: container=$container_status" >&2
       echo "[suite] Local baseline output:" >&2
       cat "$baseline_log" >&2
+      echo "[suite] Container baseline output:" >&2
+      cat "$container_baseline_log" >&2
       echo "[suite] Container output:" >&2
       cat "$container_log" >&2
       exit 1
     fi
     echo "[suite] Pre-upgrade suite complete"
     echo "[suite] Local HTML: $before_dir/report.html"
+    echo "[suite] Container baseline HTML: $container_baseline_dir/report.html"
     echo "[suite] Container HTML: reports/container-rehearsal/run/report.html"
     echo ""
     echo "[suite] Local baseline output:"
     cat "$baseline_log"
+    echo ""
+    echo "[suite] Container baseline output:"
+    cat "$container_baseline_log"
     echo ""
     echo "[suite] Container output:"
     cat "$container_log"

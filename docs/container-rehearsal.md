@@ -230,9 +230,9 @@ cp reports/container-rehearsal/run/report.json reports/container-baselines/2026.
 OPENCLAW_BASELINE_FILE=reports/container-baselines/2026.4.23/report.json OPENCLAW_PACKAGE=openclaw@2026.4.29 npm run container:rehearse -- fixtures/openclaw-sanitized
 ```
 
-## Run With the Local Baseline
+## Run With Baselines
 
-The project includes a convenience suite that runs the local baseline and container rehearsal in parallel, while delaying result output until both checks finish:
+The project includes a convenience suite that runs a local baseline, a same-harness container baseline for the currently installed OpenClaw version, and then the target container rehearsal:
 
 ```sh
 npm run suite:pre
@@ -241,9 +241,10 @@ npm run suite:pre
 This command:
 
 - exports `fixtures/openclaw-sanitized`
-- starts the local baseline into `reports/before-upgrade`
-- starts the container rehearsal into `reports/container-rehearsal/run`
-- prints both outputs after all pre-upgrade checks finish
+- writes the local baseline into `reports/before-upgrade`
+- writes the current-version container baseline into `reports/container-baselines/<version>`
+- writes the target container rehearsal into `reports/container-rehearsal/run`
+- fails if the target loses behavior that the current package preserved in the same container harness
 
 After upgrading OpenClaw, run:
 

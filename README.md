@@ -38,11 +38,11 @@ Run the pre-upgrade suite before changing OpenClaw:
 npm run suite:pre
 ```
 
-This exports a sanitized fixture, starts the local baseline and container rehearsal in parallel, captures both outputs, and prints the results only after all pre-upgrade checks finish.
+This exports a sanitized fixture, captures a local baseline, runs a same-harness container baseline for the currently installed OpenClaw version, then runs the target container rehearsal against that container baseline.
 
-The two checks overlap on purpose. The baseline records what is already true on the live host before upgrading, while the container rehearsal tests whether the target OpenClaw package can install and run against sanitized state. The baseline gives context for deciding whether a warning is old known state or new upgrade risk; container-only checks are useful smoke tests, but they are not enough for a full upgrade decision.
+The checks overlap on purpose. The local baseline records what is already true on the live host before upgrading. The container baseline records what the current OpenClaw package can do in the same isolated harness. The target container is then compared against that same-harness baseline, so a target that loses gateway identity, scopes, command JSON behavior, configured channels, or other baseline behavior becomes a hard failure instead of a generic container warning.
 
-The first container run can take several minutes because it builds a fresh image and installs OpenClaw inside it. On small hosts, expect the report to take around 10 minutes.
+The first container runs can take several minutes because the suite builds images and installs OpenClaw inside them. On small hosts, expect the report to take around 10 minutes or more.
 
 Review both summaries:
 

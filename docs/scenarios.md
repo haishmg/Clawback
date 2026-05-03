@@ -97,7 +97,7 @@ This is the preferred pre-upgrade container decision when investigating a specif
 
 ## Pre-Upgrade Suite
 
-Goal: make the normal pre-upgrade process faster by running the independent checks in parallel while showing results only after both finish.
+Goal: make the normal pre-upgrade process catch target regressions before touching the live install.
 
 Command:
 
@@ -114,9 +114,10 @@ npm run suite:pre -- --target 2026.4.26
 Expected outcome:
 
 - A sanitized fixture is exported.
-- Local baseline starts into `reports/before-upgrade`.
-- Container rehearsal starts into `reports/container-rehearsal/run`.
-- The command exits nonzero if either check fails.
+- A local baseline is written to `reports/before-upgrade`.
+- A same-harness container baseline for the currently installed OpenClaw version is written to `reports/container-baselines/<version>`.
+- The target container rehearsal is written to `reports/container-rehearsal/run`.
+- The command exits nonzero if the local baseline fails, the container baseline fails, or the target regresses against the container baseline.
 
 The post-upgrade comparison depends on the baseline and on the real upgrade being complete, so it runs separately:
 

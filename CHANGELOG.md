@@ -12,6 +12,7 @@ Clawback uses semantic versioning:
 
 ### Fixed
 
+- Make `suite:pre` compare the target container against a same-harness current-version container baseline, so target regressions such as lost gateway identity or missing scopes become hard failures instead of standalone container warnings.
 - Prevent overlapping pre-upgrade suite or container rehearsal runs from corrupting shared logs, reports, and container images.
 
 ## [0.2.1] - 2026-05-02
