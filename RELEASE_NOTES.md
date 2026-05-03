@@ -1,10 +1,12 @@
-# Clawback 0.2.1
+# Clawback 0.3.0
 
 ## Highlights
 
-- Adds `npm run suite:pre -- --target <version>` for selecting the OpenClaw target package without setting `OPENCLAW_PACKAGE`.
-- Supports version, dist-tag, and full package specs, for example `2026.4.26`, `beta`, or `openclaw@2026.4.26`.
-- Keeps `OPENCLAW_PACKAGE` support for automation and backward compatibility.
+- Adds `npm run suite:pre -- --target <version> --private-fixture` for higher-fidelity private rehearsals.
+- Allows fixture exports to include generated plugin runtime deps with `--include-plugin-runtime-deps`.
+- Removes built rehearsal images after verification by default to reduce Podman/Docker storage growth.
+- Adds `--keep-image` for debugging cases where the built rehearsal image should be preserved.
+- Narrows `npm test` to project tests so generated private fixture files are not accidentally executed.
 
 ## Validation
 
