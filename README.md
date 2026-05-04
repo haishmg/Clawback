@@ -48,8 +48,17 @@ The first container runs can take several minutes because the suite builds image
 
 These short demos show the command flow, terminal result, and generated HTML report:
 
-- [Passing rehearsal: OpenClaw `2026.4.23`](docs/media/clawback-2026.4.23-pass-demo.mp4) shows a target image passing the container gate with warnings to review.
-- [Blocked rehearsal: OpenClaw `2026.4.29`](docs/media/clawback-2026.4.29-failure-demo.mp4) shows Clawback refusing to proceed after gateway/config validation errors.
+**Passing rehearsal: OpenClaw `2026.4.23`**
+
+<video src="docs/media/clawback-2026.4.23-pass-demo.mp4" controls width="720"></video>
+
+[Open the passing rehearsal video](docs/media/clawback-2026.4.23-pass-demo.mp4). This shows a target image passing the container gate with warnings to review.
+
+**Blocked rehearsal: OpenClaw `2026.4.29`**
+
+<video src="docs/media/clawback-2026.4.29-failure-demo.mp4" controls width="720"></video>
+
+[Open the blocked rehearsal video](docs/media/clawback-2026.4.29-failure-demo.mp4). This shows Clawback refusing to proceed after gateway/config validation errors.
 
 Both demos use sanitized container reports. A container pass is still only the pre-upgrade gate; run the post-upgrade host validation before trusting a changed live install.
 
