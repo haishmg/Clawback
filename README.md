@@ -6,19 +6,19 @@ It is Linux/POSIX-first today. The CLI may work elsewhere, but the helper script
 
 ## Quick Look
 
-These short playable demos show the command flow, terminal result, and generated HTML report.
+These short animated previews show the command flow, terminal result, and generated HTML report directly in the README.
 
 **Passing rehearsal: OpenClaw `2026.4.23`**
 
-<video src="docs/media/clawback-2026.4.23-pass-demo.mp4" controls preload="metadata" width="520"></video>
+[![Passing rehearsal demo](docs/media/clawback-2026.4.23-pass-demo.gif)](docs/media/clawback-2026.4.23-pass-demo.mp4)
 
-[Open the passing rehearsal video](docs/media/clawback-2026.4.23-pass-demo.mp4). This shows a target image passing the container gate with warnings to review.
+This shows a target image passing the container gate with warnings to review. [Open the MP4](docs/media/clawback-2026.4.23-pass-demo.mp4).
 
 **Blocked rehearsal: OpenClaw `2026.4.29`**
 
-<video src="docs/media/clawback-2026.4.29-failure-demo.mp4" controls preload="metadata" width="520"></video>
+[![Blocked rehearsal demo](docs/media/clawback-2026.4.29-failure-demo.gif)](docs/media/clawback-2026.4.29-failure-demo.mp4)
 
-[Open the blocked rehearsal video](docs/media/clawback-2026.4.29-failure-demo.mp4). This shows Clawback refusing to proceed after gateway/config validation errors.
+This shows Clawback refusing to proceed after gateway/config validation errors. [Open the MP4](docs/media/clawback-2026.4.29-failure-demo.mp4).
 
 Both demos use sanitized container reports. A container pass is still only the pre-upgrade gate; run the post-upgrade host validation before trusting a changed live install.
 
